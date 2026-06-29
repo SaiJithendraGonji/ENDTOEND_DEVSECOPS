@@ -1,65 +1,106 @@
-<<<<<<< HEAD
-# Three-Tier Web Application Deployment on AWS EKS using AWS EKS, ArgoCD, Prometheus, Grafana, and Jenkins
-[![LinkedIn](https://img.shields.io/badge/Connect%20with%20me%20on-LinkedIn-blue.svg)](https://www.linkedin.com/in/aman-devops/)
-[![Discord](https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.com/invite/jdzF8kTtw2)
-[![Medium](https://img.shields.io/badge/Medium-12100E?style=for-the-badge&logo=medium&logoColor=white)](https://medium.com/@amanpathakdevops)
-[![GitHub](https://img.shields.io/github/stars/AmanPathak-DevOps.svg?style=social)](https://github.com/AmanPathak-DevOps)
-[![AWS](https://img.shields.io/badge/AWS-%F0%9F%9B%A1-orange)](https://aws.amazon.com)
-[![Terraform](https://img.shields.io/badge/Terraform-%E2%9C%A8-lightgrey)](https://www.terraform.io)
+# 🔐 End-to-End DevSecOps Pipeline
 
-![Three-Tier Banner](assets/Three-Tier.gif)
+> A production-grade DevSecOps pipeline integrating automated security scanning, secret management, and policy enforcement at every stage of the software delivery lifecycle — from commit to deployment.
 
-Welcome to the Three-Tier Web Application Deployment project! 🚀
+Built from real patterns used across regulated environments including financial services and healthcare, where security gates aren't optional.
 
-This repository hosts the implementation of a Three-Tier Web App using ReactJS, NodeJS, and MongoDB, deployed on AWS EKS. The project covers a wide range of tools and practices for a robust and scalable DevOps setup.
+---
 
-## Table of Contents
-- [Application Code](#application-code)
-- [Jenkins Pipeline Code](#jenkins-pipeline-code)
-- [Jenkins Server Terraform](#jenkins-server-terraform)
-- [Kubernetes Manifests Files](#kubernetes-manifests-files)
-- [Project Details](#project-details)
+## 🏗️ Pipeline Architecture
 
-## Application Code
-The `Application-Code` directory contains the source code for the Three-Tier Web Application. Dive into this directory to explore the frontend and backend implementations.
+```
+┌─────────────┐    ┌──────────────┐    ┌─────────────────┐    ┌────────────────┐
+│  Code Push  │───▶│  SAST / SCA  │───▶│ Build & Scan    │───▶│  Deploy to K8s │
+│  GitHub     │    │  SonarQube   │    │ Docker + Trivy  │    │  EKS / AKS     │
+│             │    │  Checkmarx   │    │ Checkov (IaC)   │    │                │
+│             │    │  Snyk        │    │ OWASP ZAP (DAST)│    │                │
+└─────────────┘    └──────────────┘    └─────────────────┘    └────────────────┘
+       │                  │                    │                       │
+       ▼                  ▼                    ▼                       ▼
+  OIDC Auth          Quality Gate         Image pushed           Secrets injected
+  (keyless)          blocks merge         to ECR/ACR             via Vault / ASM
+```
 
-## Jenkins Pipeline Code
-In the `Jenkins-Pipeline-Code` directory, you'll find Jenkins pipeline scripts. These scripts automate the CI/CD process, ensuring smooth integration and deployment of your application.
+---
 
-## Jenkins Server Terraform
-Explore the `Jenkins-Server-TF` directory to find Terraform scripts for setting up the Jenkins Server on AWS. These scripts simplify the infrastructure provisioning process.
+## 🔒 Security Stages
 
-## Kubernetes Manifests Files
-The `Kubernetes-Manifests-Files` directory holds Kubernetes manifests for deploying your application on AWS EKS. Understand and customize these files to suit your project needs.
+| Stage | Tool | What It Catches |
+|-------|------|----------------|
+| SAST | SonarQube, Checkmarx | Code vulnerabilities, SQL injection, XSS |
+| Dependency Scan | Snyk | Vulnerable libraries and transitive deps |
+| Container Scan | Trivy, Anchore | CVEs in base images and packages |
+| IaC Scan | Checkov | Misconfigured Terraform / CloudFormation |
+| DAST | OWASP ZAP | Runtime vulnerabilities in deployed app |
+| Secret Detection | git-secrets, Vault | Leaked credentials in code |
+| Compliance | AWS Config / Azure Policy | Drift from CIS Benchmarks |
 
-## Project Details
-🛠️ **Tools Explored:**
-- Terraform & AWS CLI for AWS infrastructure
-- Jenkins, Sonarqube, Terraform, Kubectl, and more for CI/CD setup
-- Helm, Prometheus, and Grafana for Monitoring
-- ArgoCD for GitOps practices
+---
 
-🚢 **High-Level Overview:**
-- IAM User setup & Terraform magic on AWS
-- Jenkins deployment with AWS integration
-- EKS Cluster creation & Load Balancer configuration
-- Private ECR repositories for secure image management
-- Helm charts for efficient monitoring setup
-- GitOps with ArgoCD - the cherry on top!
+## ✅ Key Features
 
-📈 **The journey covered everything from setting up tools to deploying a Three-Tier app, ensuring data persistence, and implementing CI/CD pipelines.**
+- **OIDC keyless authentication** — GitHub Actions to AWS/Azure, zero long-lived credentials
+- **Automated quality gates** — pipelines block on CRITICAL/HIGH findings; nothing reaches production with known vulnerabilities
+- **HashiCorp Vault integration** — dynamic secrets injected at runtime, not baked into images
+- **Multi-environment promotion** — dev → non-prod → pre-prod → production with manual approval gates
+- **Consolidated security reporting** — Python scripts generate unified dashboards from SonarQube, Checkmarx, and Trivy outputs
+- **Container image hardening** — non-root users, read-only filesystems, distroless base images
+- **Zero-trust networking** — Istio mTLS between all services, NetworkPolicies enforced
 
-## Getting Started
-To get started with this project, refer to our [comprehensive guide](https://amanpathakdevops.medium.com/advanced-end-to-end-devsecops-kubernetes-three-tier-project-using-aws-eks-argocd-prometheus-fbbfdb956d1a) that walks you through IAM user setup, infrastructure provisioning, CI/CD pipeline configuration, EKS cluster creation, and more.
+---
 
-## Contributing
-We welcome contributions! If you have ideas for enhancements or find any issues, please open a pull request or file an issue.
+## 📁 Repository Structure
 
-## License
-This project is licensed under the [MIT License](LICENSE).
+```
+├── .github/
+│   └── workflows/
+│       ├── sast.yml              # SonarQube + Checkmarx gates
+│       ├── container-scan.yml    # Trivy image scanning
+│       ├── iac-scan.yml          # Checkov Terraform scanning
+│       ├── dast.yml              # OWASP ZAP dynamic scan
+│       └── deploy.yml            # EKS/AKS deployment with Vault
+├── terraform/
+│   ├── modules/                  # Reusable IaC modules
+│   └── environments/             # Per-environment configs
+├── kubernetes/
+│   ├── base/                     # Kustomize base manifests
+│   ├── overlays/                 # Environment overlays
+│   └── policies/                 # NetworkPolicies, PodSecurityPolicies
+├── vault/
+│   └── policies/                 # Vault auth policies per service
+├── scripts/
+│   └── security-report.py        # Consolidated security dashboard
+└── docs/
+    └── runbooks/                 # Incident response playbooks
+```
 
-Happy Coding! 🚀
-=======
-# DevSevops_End_to_End_Pipeline
-End to End DevSecOps Pipeline
->>>>>>> origin/main
+---
+
+## 🛠️ Tech Stack
+
+![Terraform](https://img.shields.io/badge/Terraform-7B42BC?style=flat&logo=terraform&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=flat&logo=kubernetes&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)
+![GitHub Actions](https://img.shields.io/badge/GitHub_Actions-2088FF?style=flat&logo=github-actions&logoColor=white)
+![Azure DevOps](https://img.shields.io/badge/Azure_DevOps-0078D7?style=flat&logo=azure-devops&logoColor=white)
+![SonarQube](https://img.shields.io/badge/SonarQube-4E9BCD?style=flat&logo=sonarqube&logoColor=white)
+![HashiCorp Vault](https://img.shields.io/badge/Vault-FFEC6E?style=flat&logo=vault&logoColor=black)
+![AWS](https://img.shields.io/badge/AWS-FF9900?style=flat&logo=amazon-aws&logoColor=white)
+![Azure](https://img.shields.io/badge/Azure-0078D4?style=flat&logo=microsoft-azure&logoColor=white)
+
+---
+
+## 🌍 Real-World Context
+
+These patterns are drawn from production experience across:
+- **Lloyds Banking Group** — certificate lifecycle automation, Azure DevOps pipelines in a regulated banking environment
+- **GlobalLogic** — EKS security pipelines for a FinTech insurance platform processing 100K+ policies/day
+- **OneAdvanced** — Python-based security scanning integration generating consolidated reports with automated quality gates
+
+---
+
+## 📖 Related
+
+- [Mastering_AWS_Terraform](https://github.com/SaiJithendraGonji/Mastering_AWS_Terraform) — IaC modules this pipeline scans and deploys
+- [HELM-Charts](https://github.com/SaiJithendraGonji/HELM-Charts) — Helm charts deployed by this pipeline
+- [CKA-Preparation](https://github.com/SaiJithendraGonji/CKA-Preparation) — Kubernetes depth behind the deployment stages
